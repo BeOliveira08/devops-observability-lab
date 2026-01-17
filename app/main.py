@@ -1,31 +1,18 @@
 from flask import Flask
-from prometheus_client import Counter, Histogram, generate_latest
-import time
-import random
+
+from app.routes import routes
 
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
 
-REQUEST_COUNT = Counter(
-    "http_requests_total",
-    "Total HTTP requests",
-    ["method", "endpoint", "status"]
-)
+    app.register_blueprint(routes)
 
-REQUEST_LATENCY = Histogram(
-    "http_request_latency_seconds",
-    "Request latency"
-)
+    return app
 
 
-@app.route("/")
-@REQUEST_LATENCY.time()
-def index():
-    REQUEST_COUNT.labels("GET", "/", "200").inc()
-    time.sleep(random.uniform(0.1, 0.5))
-    return {"status": "ok"}
+app = create_app()
 
 
-@app.route("/metrics")
-def metrics():
-    return generate_latest(), 200, {"Content-Type": "text/plain"}
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
