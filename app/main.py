@@ -3,6 +3,7 @@ from prometheus_client import Counter, Histogram, generate_latest
 import time
 import random
 
+
 app = Flask(__name__)
 
 REQUEST_COUNT = Counter(
@@ -16,12 +17,14 @@ REQUEST_LATENCY = Histogram(
     "Request latency"
 )
 
+
 @app.route("/")
 @REQUEST_LATENCY.time()
 def index():
     REQUEST_COUNT.labels("GET", "/", "200").inc()
     time.sleep(random.uniform(0.1, 0.5))
     return {"status": "ok"}
+
 
 @app.route("/metrics")
 def metrics():
